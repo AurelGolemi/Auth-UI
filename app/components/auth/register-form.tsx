@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Loader2, CheckCircle2, Check } from 'lucide-react';
+import { Mail, Lock, User, Loader2, CheckCircle2 } from 'lucide-react';
 import { FormField } from '@/app/components/ui/form-field';
 import { PasswordStrength } from '@/app/components/ui/password-strength';
 import { registerSchema, type RegisterInput } from '@/app/lib/validations/auth';
