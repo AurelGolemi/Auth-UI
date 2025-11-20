@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Loader2, CheckCircle2 } from 'lucide-react';
-import { FormField } from '@/app/components/ui/form-field';
-import { PasswordStrength } from '@/app/components/ui/password-strength';
-import { registerSchema, type RegisterInput } from '@/app/lib/validations/auth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { Mail, Lock, User, Loader2, CheckCircle2 } from "lucide-react";
+import { FormField } from "@/app/components/ui/form-field";
+import { PasswordStrength } from "@/app/components/ui/password-strength";
+import { registerSchema, type RegisterInput } from "@/app/lib/validations/auth";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -23,20 +24,20 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    mode: 'onTouched',
+    mode: "onTouched",
   });
 
-  const password = watch('password');
+  const password = watch("password");
 
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     setAuthError(null);
 
     try {
-      // Call your registration API
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Call registration API
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: data.name,
           email: data.email,
@@ -47,27 +48,31 @@ export function RegisterForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        setAuthError(result.error || 'Registration failed');
+        setAuthError(result.error || "Registration failed");
         return;
       }
 
-      // Auto-login after successful registration
-      const signInResponse = await fetch('/api/auth/signIn', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
+      // Auto-login after successful registration using NextAuth
+      const signInResult = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
       });
 
-      if (signInResponse.ok) {
-        router.push('/profile');
+      if (signInResult?.error) {
+        setAuthError(
+          "Registration successful, but login failed. Please login manually."
+        );
+        return;
+      }
+
+      if (signInResult?.ok) {
+        router.push("/profile");
         router.refresh();
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      setAuthError('An unexpected error occurred');
+      console.error("Registration error:", error);
+      setAuthError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +97,7 @@ export function RegisterForm() {
         error={errors.name?.message}
         disabled={isLoading}
         autoComplete="name"
-        {...register('name')}
+        {...register("name")}
       />
 
       <FormField
@@ -103,13 +108,13 @@ export function RegisterForm() {
         error={errors.email?.message}
         disabled={isLoading}
         autoComplete="email"
-        {...register('email')}
+        {...register("email")}
       />
 
       <div>
         <FormField
           label="Password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           icon={Lock}
           placeholder="Create a password"
           showPasswordToggle
@@ -117,14 +122,14 @@ export function RegisterForm() {
           error={errors.password?.message}
           disabled={isLoading}
           autoComplete="new-password"
-          {...register('password')}
+          {...register("password")}
         />
         <PasswordStrength password={password} />
       </div>
 
       <FormField
         label="Confirm Password"
-        type={showConfirmPassword ? 'text' : 'password'}
+        type={showConfirmPassword ? "text" : "password"}
         icon={Lock}
         placeholder="Confirm your password"
         showPasswordToggle
@@ -132,7 +137,7 @@ export function RegisterForm() {
         error={errors.confirmPassword?.message}
         disabled={isLoading}
         autoComplete="new-password"
-        {...register('confirmPassword')}
+        {...register("confirmPassword")}
       />
 
       <label className="flex items-start gap-2 text-sm text-gray-300 cursor-pointer select-none">
@@ -143,12 +148,20 @@ export function RegisterForm() {
           className="w-4 h-4 mt-0.5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
         />
         <span>
-          I agree to the{' '}
-          <a href="/terms" className="text-blue-400 hover:text-blue-300 underline" target="_blank">
+          I agree to the{" "}
+          <a
+            href="/terms"
+            className="text-blue-400 hover:text-blue-300 underline"
+            target="_blank"
+          >
             Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="/privacy" className="text-blue-400 hover:text-blue-300 underline" target="_blank">
+          </a>{" "}
+          and{" "}
+          <a
+            href="/privacy"
+            className="text-blue-400 hover:text-blue-300 underline"
+            target="_blank"
+          >
             Privacy Policy
           </a>
         </span>

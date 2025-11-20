@@ -1,12 +1,16 @@
-'use client';
+"use client";
 
-import { SessionProvider } from 'next-auth/react';
-import { ReactNode } from 'react';
+import { SessionProvider } from "next-auth/react";
+import { ReactNode } from "react";
 
 interface ProvidersProps {
   children: ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <SessionProvider>{children}</SessionProvider>
+  return (
+    <SessionProvider basePath="/api/auth" refetchInterval={0}>
+      {children}
+    </SessionProvider>
+  );
 }

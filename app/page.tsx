@@ -1,23 +1,39 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
+import { redirect } from 'next/navigation';
 
-interface LoginForm {
-  name: string;
-  email: string;
-  password: number;
-  id: string;
-}
+export default async function HomePage() {
+  const session = await getServerSession(authOptions);
 
-function LoginForm() {
-  return;
-}
+  // If already logged in, redirect to profile
+  if (session) {
+    redirect('/profile');
+  }
 
-export default function Login() {
   return (
-    <div className="bg-gray-800 min-h-screen p-35">
-      <div className="border border-gray-100 p-4 gap-3">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl text-center pb-4">Welcome To Our Platform</h1>
-        <p className="text-gray-300 text-center pb-4">Login Or Register Here</p>
-        <form className=""></form>
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+      <div className="text-center space-y-8 max-w-2xl">
+        <h1 className="text-5xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Welcome to Our Platform
+        </h1>
+        <p className="text-xl text-gray-300">
+          Experience secure, production-ready authentication
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/login"
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors cursor-pointer"
+          >
+            Get Started
+          </Link>
+          <Link
+            href="/about"
+            className="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors cursor-pointer"
+          >
+            Learn More
+          </Link>
+        </div>
       </div>
     </div>
   )
