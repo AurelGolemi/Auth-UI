@@ -40,6 +40,13 @@ export const registerSchema = z
     path: ['confirmPassword'],
   });
 
+// Backend schema without confirmPassword for server validation
+export const registerServerSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+});
+
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
@@ -68,6 +75,7 @@ export const changePasswordSchema = z
 // Type exports - TypeScript magic via z.infer
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type RegisterServerInput = z.infer<typeof registerServerSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

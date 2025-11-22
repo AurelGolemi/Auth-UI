@@ -5,30 +5,48 @@ import GitHubProvider from "next-auth/providers/github";
 import { compare, hash } from "bcrypt";
 import { loginSchema } from "./validations/auth";
 
-// TEMPORARY: In-memory user storage for demonstration
-// In production, replace this with actual database queries
-const users = new Map<
-  string,
-  {
-    id: string;
-    name: string;
-    email: string;
-    password: string;
-    createdAt: Date;
+import { promises as fs } from "fs";
+import path from "path";
+
+// Path to JSON file storing users
+const usersFilePath = path.join(process.cwd(), "data", "users.json");
+
+// Helper function to read users from file
+async function readUsersFromFile() {
+  try {
+    const data = await fs.readFile(usersFilePath, "utf-8");
+    const usersArray = JSON.parse(data);
+    // Convert array to Map with email keys
+    const usersMap = new Map();
+    for (const user of usersArray) {
+      usersMap.set(user.email.toLowerCase(), {
+        ...user,
+        createdAt: new Date(user.createdAt),
+      });
+    }
+    return usersMap;
+  } catch (error) {
+    // If file doesn't exist or error, return empty map
+    return new Map();
   }
->();
+}
+
+// Helper function to write users to file
+async function writeUsersToFile(usersMap) {
+  // Convert Map to array
+  const usersArray = Array.from(usersMap.values());
+  await fs.writeFile(usersFilePath, JSON.stringify(usersArray, null, 2));
+}
 
 // Helper function to get user by email
-export async function getUserByEmail(email: string) {
+export async function getUserByEmail(email) {
+  const users = await readUsersFromFile();
   return users.get(email.toLowerCase());
 }
 
 // Helper function to create user
-export async function createUser(data: {
-  name: string;
-  email: string;
-  password: string;
-}) {
+export async function createUser(data) {
+  const users = await readUsersFromFile();
   const email = data.email.toLowerCase();
 
   if (users.has(email)) {
@@ -48,6 +66,8 @@ export async function createUser(data: {
 
   users.set(email, user);
 
+  await writeUsersToFile(users);
+
   return {
     id: user.id,
     name: user.name,
@@ -56,12 +76,14 @@ export async function createUser(data: {
 }
 
 // Helper function to update password
-export async function updateUserPassword(userId: string, newPassword: string) {
-  // Find user by ID
+export async function updateUserPassword(userId, newPassword) {
+  const users = await readUsersFromFile();
+
   for (const [email, user] of users.entries()) {
     if (user.id === userId) {
       const hashedPassword = await hash(newPassword, 12);
       users.set(email, { ...user, password: hashedPassword });
+      await writeUsersToFile(users);
       return true;
     }
   }
@@ -69,7 +91,7 @@ export async function updateUserPassword(userId: string, newPassword: string) {
 }
 
 // NextAuth configuration
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   // Session strategy
   session: {
     strategy: "jwt", // Use JWT for stateless auth
