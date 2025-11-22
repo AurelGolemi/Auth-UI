@@ -5,5 +5,12 @@
     "email": "aurelgolemi2@gmail.com",
     "password": "$2b$12$dlMhpdRPbT7y.WHWkQjOB.nYOyUgrGE0k1LjhVnqJtY5eawLV5fBq",
     "createdAt": "2025-11-22T15:39:19.528Z"
+  },
+  {
+    "id": "5159e27d-dbaf-40c2-b358-0b77527aa8d2",
+    "name": "John Doe",
+    "email": "johndoe@gmail.com",
+    "password": "$2b$12$mgfqUe/boV3dXwiRQFAI9ONhNiwbV7dpbTs0gdq4.T5uhERV.9b5y",
+    "createdAt": "2025-11-22T16:26:52.429Z"
   }
 ]
