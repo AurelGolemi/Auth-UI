@@ -32,20 +32,36 @@ async function readUsersFromFile() {
 }
 
 // Helper function to write users to file
-async function writeUsersToFile(usersMap) {
+// Typings for our user object
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
+async function writeUsersToFile(usersMap: Map<string, User>): Promise<void> {
   // Convert Map to array
   const usersArray = Array.from(usersMap.values());
   await fs.writeFile(usersFilePath, JSON.stringify(usersArray, null, 2));
 }
 
 // Helper function to get user by email
-export async function getUserByEmail(email) {
+export async function getUserByEmail(email: string): Promise<User | undefined> {
   const users = await readUsersFromFile();
   return users.get(email.toLowerCase());
 }
 
 // Helper function to create user
-export async function createUser(data) {
+interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+}
+export async function createUser(
+  data: CreateUserData
+): Promise<Omit<User, "password">> {
   const users = await readUsersFromFile();
   const email = data.email.toLowerCase();
 
@@ -56,7 +72,7 @@ export async function createUser(data) {
   const hashedPassword = await hash(data.password, 12);
   const userId = crypto.randomUUID();
 
-  const user = {
+  const user: User = {
     id: userId,
     name: data.name,
     email,
@@ -72,11 +88,15 @@ export async function createUser(data) {
     id: user.id,
     name: user.name,
     email: user.email,
+    createdAt: user.createdAt, // added to fix missing property
   };
 }
 
 // Helper function to update password
-export async function updateUserPassword(userId, newPassword) {
+export async function updateUserPassword(
+  userId: string,
+  newPassword: string
+): Promise<boolean> {
   const users = await readUsersFromFile();
 
   for (const [email, user] of users.entries()) {
@@ -177,7 +197,15 @@ export const authOptions = {
   // Callbacks for customizing behavior
   callbacks: {
     // JWT callback - runs when JWT is created or updated
-    async jwt({ token, user, account }) {
+    async jwt({
+      token,
+      user,
+      account,
+    }: {
+      token: any;
+      user?: any;
+      account?: any;
+    }) {
       // Initial sign in
       if (user) {
         token.id = user.id;
@@ -205,7 +233,7 @@ export const authOptions = {
     },
 
     // Session callback - runs when session is checked
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         // Ensure token.id is a string, then assign to a narrowly-typed user object
         if (typeof token.id === "string") {
@@ -216,7 +244,7 @@ export const authOptions = {
     },
 
     // Redirect callback - controls where user goes after auth actions
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
