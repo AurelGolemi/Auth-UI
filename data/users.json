@@ -12,5 +12,12 @@
     "email": "johndoe@gmail.com",
     "password": "$2b$12$mgfqUe/boV3dXwiRQFAI9ONhNiwbV7dpbTs0gdq4.T5uhERV.9b5y",
     "createdAt": "2025-11-22T16:26:52.429Z"
+  },
+  {
+    "id": "a13a1166-9ab4-4477-a1a4-dc64097ebd46",
+    "name": "Cristiano Ronaldo",
+    "email": "cristianoronaldo@gmail.com",
+    "password": "$2b$12$IictbIHhh8EmMKao1EMyhuLYm7EsyAJL8BSnDg.CLUp3baHcqXmGO",
+    "createdAt": "2025-11-22T16:36:50.623Z"
   }
 ]

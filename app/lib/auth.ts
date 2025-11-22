@@ -1,4 +1,5 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
@@ -202,17 +203,17 @@ export const authOptions = {
       user,
       account,
     }: {
-      token: any;
-      user?: any;
-      account?: any;
+      token: JWT;
+      user?: unknown;
+      account?: unknown;
     }) {
       // Initial sign in
       if (user) {
-        token.id = user.id;
+        token.id = (user as { id: string }).id;
       }
 
       // OAuth sign in
-      if (account?.provider === "google" || account?.provider === "github") {
+      if (account && typeof account === "object" && "provider" in account && (account.provider === "google" || account.provider === "github")) {
         // Check if user exists, create if not
         const existingUser = await getUserByEmail(token.email!);
 
@@ -231,12 +232,11 @@ export const authOptions = {
 
       return token;
     },
-
     // Session callback - runs when session is checked
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: Session; token: JWT | null }) {
       if (session.user) {
         // Ensure token.id is a string, then assign to a narrowly-typed user object
-        if (typeof token.id === "string") {
+        if (token && typeof token.id === "string") {
           (session.user as { id?: string }).id = token.id;
         }
       }
