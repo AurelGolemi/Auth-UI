@@ -111,11 +111,14 @@ export async function updateUserPassword(
   throw new Error("User not found");
 }
 
+import type { NextAuthOptions, SessionStrategy } from 'next-auth';
+// ... other imports
+
 // NextAuth configuration
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   // Session strategy
   session: {
-    strategy: "jwt", // Use JWT for stateless auth
+    strategy: "jwt" as SessionStrategy, // Use JWT for stateless auth
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
